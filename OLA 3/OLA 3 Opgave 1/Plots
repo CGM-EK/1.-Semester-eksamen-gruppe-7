@@ -1,0 +1,63 @@
+library(ggplot2)
+
+FTI_og_PFV <- cbind(f.tillidsammen, forbrugertillid)
+
+
+#Spg 3
+
+ggplot(data = FTI_og_PFV, aes(x=year))+
+  geom_bar(aes(y=pfv*5, color = "Privatforbrugets årlige kvartalsvise realvækst (Højre y-akse)"), fill = "darkolivegreen4", stat = "identity", width = 75)+
+  geom_line(aes(y=Spg3+sqrt(Spg3[1]^2), color = " Spg. 3: Hvordan synes du, den økonomiske situation for Danmark er i dag sammenlignet med for et år siden? (Venstre y-akse)"), size = 1.2)+
+  scale_y_continuous(
+    name = "Nettotal",
+    limits = c(-65,50),
+    breaks = seq(-60, 50, 10),
+    sec.axis = sec_axis(~./5, name ="Procent", breaks = seq(-12, 10, 2))
+  ) +scale_color_manual(
+    name = "",  # Overskrift for linjerne
+    values = c("Privatforbrugets årlige kvartalsvise realvækst (Højre y-akse)" = "darkolivegreen4", " Spg. 3: Hvordan synes du, den økonomiske situation for Danmark er i dag sammenlignet med for et år siden? (Venstre y-akse)" = "darkorange"))+
+  theme_minimal()+ labs(title = "Danskernes mening om den samfundsøkonomiske situation følger i høj grad den reale vækst i privatforbruget", caption = "Kilde: Danmarks Statistik\nKilde: Egne beregninger")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), legend.position = "bottom")+
+  scale_x_date(name = "Year", breaks = f.tillidsammen$year[seq(1, length(f.tillidsammen$year), by = 4)],
+               labels =format(f.tillidsammen$year[seq(1, length(f.tillidsammen$year), by = 4)], "%Y"))+
+  geom_hline(yintercept = 0, linetype = "solid", linewidth = 0.1, color = "black")
+
+
+######################################################################################################################################################
+#Spg 9
+
+ggplot(data = FTI_og_PFV, aes(x=year))+
+  geom_bar(aes(y=pfv*2, color = "Privatforbrugets årlige kvartalsvise realvækst (Højre y-akse)"), fill = "darkolivegreen4", stat = "identity", width = 75)+
+  geom_line(aes(y=Spg9+sqrt(Spg9[1]^2), color = " Spg. 9: Hvor meget vil familien i de kommende 12 måneder bruge til større forbrugsgoder, sammenlignet med de sidste 12 måneder? (Venstre y-akse)"), size = 1.2)+
+  scale_y_continuous(
+    name = "Nettotal",
+    limits = c(-20,20),
+    breaks = seq(-20, 20, 4),
+    sec.axis = sec_axis(~./2, name ="Procent", breaks = seq(-10, 10, 2))
+  ) +scale_color_manual(
+    name = "",  # Overskrift for linjerne
+    values = c("Privatforbrugets årlige kvartalsvise realvækst (Højre y-akse)" = "darkolivegreen4", " Spg. 9: Hvor meget vil familien i de kommende 12 måneder bruge til større forbrugsgoder, sammenlignet med de sidste 12 måneder? (Venstre y-akse)" = "darkorange"))+
+  theme_minimal()+ labs(title = "Danskernes forventing til køb af større forbrugsgoder følger i høj grad den reale vækst i privatforbruget", caption = "Kilde: Danmarks Statistik\nKilde: Egne beregninger")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), legend.position = "bottom")+
+  scale_x_date(name = "Year", breaks = f.tillidsammen$year[seq(1, length(f.tillidsammen$year), by = 4)],
+               labels =format(f.tillidsammen$year[seq(1, length(f.tillidsammen$year), by = 4)], "%Y"))+
+  geom_hline(yintercept = 0, linetype = "solid", linewidth = 0.1, color = "black")
+######################################################################################################################################################
+#Spg 11
+
+ggplot(data = FTI_og_PFV, aes(x=year))+
+  geom_bar(aes(y=pfv*2, color = "Privatforbrugets årlige kvartalsvise realvækst (Højre y-akse)"), fill = "darkolivegreen4", stat = "identity", width = 75)+
+  geom_line(aes(y=Spg11-sqrt(Spg11[1]^2), color = " Spg. 11: Regner du med i de kommende 12 måneder at kunne spare noget op? Der skal ses bort fra opsparing i form af afdrag på prioritetslån og andre lån. (Venstre y-akse)"), size = 1.2)+
+  scale_y_continuous(
+    name = "Nettotal",
+    limits = c(-20,20),
+    breaks = seq(-20, 20, 4),
+    sec.axis = sec_axis(~./2, name ="Procent", breaks = seq(-10, 10, 2))
+  ) +scale_color_manual(
+    name = "",  # Overskrift for linjerne
+    values = c("Privatforbrugets årlige kvartalsvise realvækst (Højre y-akse)" = "darkolivegreen4", " Spg. 11: Regner du med i de kommende 12 måneder at kunne spare noget op? Der skal ses bort fra opsparing i form af afdrag på prioritetslån og andre lån. (Venstre y-akse)" = "darkorange"))+
+  theme_minimal()+ labs(title = "Danskernes forventning om at kunne spare op i de kommende 12 måneder følger i høj grad den reale vækst i privatforbruget", caption = "Kilde: Danmarks Statistik\nKilde: Egne beregninger")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), legend.position = "bottom")+
+  scale_x_date(name = "Year", breaks = f.tillidsammen$year[seq(1, length(f.tillidsammen$year), by = 4)],
+               labels =format(f.tillidsammen$year[seq(1, length(f.tillidsammen$year), by = 4)], "%Y"))+
+  geom_hline(yintercept = 0, linetype = "solid", linewidth = 0.1, color = "black")
