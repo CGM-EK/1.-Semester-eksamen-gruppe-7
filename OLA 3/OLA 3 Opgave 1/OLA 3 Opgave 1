@@ -125,23 +125,21 @@ Top5combinationer <- rsquaredcordf[order(-rsquaredcordf[,2]), ]
 Top5combinationer <- as.data.frame(Top5combinationer[1:5,1:2])
 
 #lm på privatforbrug med den bedste indikator
-lm.opt <- lm(f.tillidsammen$pfv ~ totalcordf$'Spg3 + Spg8 + Spg6 + Spg9 + Spg10 + Spg11 + Spg12')
+lm.opt <- lm(f.tillidsammen$pfv ~ totalcordf$'Spg3 + Spg8 + Spg9 + Spg11 + Spg12')
 summary(lm.opt)
 
 #definerer koefficienter for den lm
-std <- 0.55351
-estimate <- -4.48909
-k2 <- totalcordf$'Spg3 + Spg8 + Spg6 + Spg9 + Spg10 + Spg11 + Spg12'[102]
+std <- 0.27916
+estimate <- -0.77709
+k2 <- totalcordf$'Spg3 + Spg8 + Spg9 + Spg11 + Spg12'[102]
 #forudsigelse for k3
 pfvforudsigelsek3 <- estimate+std*k2
 
-spgsss <- (f.tillid$Spg3[311]+
-             f.tillid$Spg6[311]+
-             f.tillid$Spg8[311]+
-             f.tillid$Spg9[311]+
-             f.tillid$Spg10[311]+
-             f.tillid$Spg11[311]+
-             f.tillid$Spg12[311])/7
+spgsss <- ((sum(f.tillid$Spg3[310:311])/2)+
+             (sum(f.tillid$Spg8[310:311])/2)+
+             (sum(f.tillid$Spg9[310:311])/2)+
+             (sum(f.tillid$Spg11[310:311])/2)+
+             sum(f.tillid$Spg12[310:311])/2)/5
 
 #forudsigelse for k4
 pfvforudsigelsek4 <- estimate+std*spgsss
