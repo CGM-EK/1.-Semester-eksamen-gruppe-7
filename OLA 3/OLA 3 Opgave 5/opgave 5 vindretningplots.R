@@ -1,4 +1,4 @@
-#################århus
+#################anholt
 dfan <- expand.grid(
   x = seq(0, pi, pi/12),
   y = 0
@@ -7,14 +7,10 @@ dfan <- expand.grid(
 # Tilføj vindretning
 dfan$winddir <- as.numeric(anholt_flip$value[1:nrow(df)])
 
-# ✅ KORREKT omregning fra kompasgrader til matematiske vektorer:
+
 dfan$u <- -sin(dfan$winddir * pi / 180)
 dfan$v <- -cos(dfan$winddir * pi / 180)
-install.packages("rnaturalearthdata")
-library(sf)
 
-library(rnaturalearth)
-dk <- ne_countries(scale = "medium", country = "Denmark", returnclass = "sf")
 
 ggplot(dfan, aes(x = x, y = 0, u = u, v = v)) +
   geom_quiver(color = "darkolivegreen4") +
@@ -28,7 +24,7 @@ ggplot(dfan, aes(x = x, y = 0, u = u, v = v)) +
   scale_y_continuous(labels = NULL)
 
 #############aarhus
-dfan <- expand.grid(
+dfaa <- expand.grid(
   x = seq(0, pi, pi/12),
   y = 0
 )
@@ -40,10 +36,6 @@ dfaa$winddir <- as.numeric(aarhus_flip$value[1:nrow(df)])
 dfaa$u <- -sin(dfaa$winddir * pi / 180)
 dfaa$v <- -cos(dfaa$winddir * pi / 180)
 install.packages("rnaturalearthdata")
-library(sf)
-
-library(rnaturalearth)
-dk <- ne_countries(scale = "medium", country = "Denmark", returnclass = "sf")
 
 ggplot(dfaa, aes(x = x, y = 0, u = u, v = v)) +
   geom_quiver(color = "darkolivegreen4") +
