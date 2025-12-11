@@ -1,0 +1,214 @@
+source("C:\\Users\\marti\\Documents\\Git\\EK\\1. sem\\OLA5\\pass.R")
+library(rvest)
+library(httr)
+library(tidyverse)
+library(tibble)
+library(DBI)
+library(RMariaDB)
+library(logr)
+library(dplyr)
+library(glue)
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#PARAMETRISERING
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+baseurl <- "https://www.bilbasen.dk/brugt/autocamper?fuel=1&fuel=2&includeengroscvr=true&includeleasing=false&sellertypes=dealer"
+total_number_of_pages <- 6
+
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#WEBSCRAPE AF BILER FRA BILBASEN OG DATATRANSFORMATION
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#colnames####
+colname <- c("Modelår","X1_registrering","Kilometertal","Drivmiddel",
+             "Brændstofforbrug",
+             "CO2_udledning",
+             "Euronorm",
+             "Periodisk_afgift",
+             "Ydelse",
+             "Acceleration",
+             "Tophastighed",
+             "Geartype",
+             "Antal_gear",
+             "Trækvægt",
+             "Farve",
+             "Nypris",
+             "Kategori",
+             "Type",
+             "Bagagerumsstørrelse",
+             "Vægt",
+             "Bredde",
+             "Længde",
+             "Højde",
+             "Lasteevne",
+             "Max_trækvægt_m_bremse",
+             "Trækhjul",
+             "Cylindre",
+             "ABS_bremser",
+             "ESP",
+             "Airbags",
+             "Tankkapacitet",
+             "Døre")
+#colnames####
+
+#tomme matrix med kolonnenavne
+bildf <- matrix(ncol = 39, nrow = 0)
+colnames(bildf) <- c("makemodels", "prices", "forhandler", "adresse", "cvr", "links", "beskrivelse", colname)
+
+for(page_num in 1:total_number_of_pages){
+  
+  if(page_num == 1) {
+    url <- baseurl} else {
+    url <- paste0(baseurl, "&page=", page_num, "&sellertypes=dealer")}
+  
+  res <- GET(url, add_headers("User-Agent"="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"))
+  page <- read_html(res)
+  
+  #Siden over salgsopslag
+  salgsopslag <- page %>% 
+    html_elements("a.Listing_link__6Z504") %>% 
+    html_attr("href")
+  
+  for(i in 1:length(salgsopslag)){
+    #Henter de enkelte salgsopslag på siden
+    link2 <- read_html(salgsopslag[i])
+    
+    modelnavn <- link2 %>% html_elements("h1.bas-MuiTypography-root.bas-MuiCarHeaderComponent-title.bas-MuiTypography-h2") %>% html_attr("title")
+    salgspris  <- link2 %>% html_elements("span.bas-MuiCarPriceComponent-value") %>% html_text()
+    forhandler <- link2 %>% html_elements("h2.bas-MuiTypography-root.bas-MuiTypography-h3") %>% html_text()
+    adresse <- link2 %>% html_elements("a.bas-MuiSellerInfoComponent-address") %>% html_text()
+    CVR <- link2 %>% html_elements("p.bas-MuiSellerInfoComponent-cvr") %>% html_text()
+    info <- link2 %>% html_elements("td.bas-MuiTableCell-root.bas-MuiTableCell-body.bas-MuiTableCell-alignRight") %>% html_text()
+    beskrivelse <- link2 %>% html_elements("div.bas-MuiAdDescriptionComponent-descriptionText") %>% html_elements("p") %>% html_text()
+    
+    if(length(modelnavn) == 0){modelnavn <- "fejl"}
+    if(length(salgspris) == 0){salgspris <- "fejl"}
+    if(length(forhandler) == 0){forhandler <- c("fejl", "fejl", "fejl", "fejl", "fejl", "fejl")}
+    if(length(adresse) == 0){adresse <- "fejl"}
+    if(length(CVR) == 0){CVR <- "00000000"}
+    if(length(info) == 0){info <- "fejl"}
+    if(length(beskrivelse) == 0){beskrivelse <- "fejl"}
+    
+    #Gør scraping langsommere så vi forhåbentlig ikke bliver blokeret
+    Sys.sleep(1.5)
+    
+bildf <- rbind(bildf, c(modelnavn, salgspris, forhandler[6], adresse, gsub("[^0-9]","", CVR), salgsopslag[i], gsub("[^a-zA-Z0-9,æøå ÆØÅ ).(+-]", "", beskrivelse), info))
+  }
+}
+
+bildf2 <- cbind(Scrape_date=as.character(Sys.time()), bildf)
+bildf2 <- data.frame(bildf2, solgt=rep("FALSE", times=nrow(bildf2)))
+
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#SIMULEREDE ÆNDRINGER TIL DATASÆT
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#laver 2 nye "biler####
+førstenyebil <- c(
+  as.character(Sys.time()+86400), "Ford Focus", "100000 kr", "Jørgen ApS", "Prins Jørgens Gård 5, 1218 København", "12345678",
+  "Jørgensbiler.dk/1", "Fin stand, kom og køb", "2016", "-", "150.000 km", "Blå",
+  "15,6 km/l", "6 g/km", "1", "8.220 kr. / år", "146 hk", "-", "180 km/t", "Manuel",
+  "3", "1200 kg", "Guld", "399.999", "stationcar", "Stationcar", "800 kg", "70 L",
+  "2", "4", "180 cm", "2000 kg", "-", "Forhjultræk", "0", "Ja", "Nej",
+  "4", "70", "2", "FALSE"
+)
+
+andennyebil <- c(
+  as.character(Sys.time()+86400), "Toyota Camper", "450.000 kr", "Jørgen ApS", "Prins Jørgens Gård 5, 1218 København", "87654321",
+  "Jørgensbiler.dk/2", "Perfekt, om og køb den", "2012", "-", "200.000 km", "Gul og rød",
+  "12,5 km/l", "12 g/km", "1", "8220 kr. / år", "101 hk", "-", "150 km/t", "Manuel",
+  "3", "1500 kg", "Rød", "899,999 kr.", "Autocamper", "Autocamper", "22 kg", "70 L",
+  "2", "1", "180 cm", "3000", "-", "baghjulstræ", "0", "Ja", "Nej",
+  "1", "70", "2", "FALSE"
+)
+#####
+
+simuleret_webscrape <- cbind(Scrape_date=as.POSIXct(bildf2[,1])+86400, bildf2[,2:ncol(bildf2)])
+
+simuleret_webscrape <- rbind(simuleret_webscrape[6:nrow(simuleret_webscrape),], førstenyebil, andennyebil)
+
+simuleret_webscrape[1:3,3] <- c("1.750.000 kr.", "625.000 kr.", "3.200.000 kr.")  #forfalsket bildf2
+rownames(annoncer) <- NULL #resets rownumbers
+  
+
+
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#SQL TABLES OG WRITE
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#connecter til workbenchen####
+con <- dbConnect(MariaDB(),
+                 host="13.62.127.183",
+                 port="3306",
+                 db="bilbasen",
+                 user="dalremote",
+                 password=pass)
+
+#funktion som deler bildf2 ud på forskellige tables og writer i SQL
+
+write_autocamper_data <- function(con, bildf2) {
+  library(dplyr)
+  
+  annoncer <- cbind(links = bildf2[, 7],cvr = bildf2[, 6],bildf2[, c(2, 8:40)])
+  rownames(annoncer) <- NULL
+  
+  forhandler1 <- bildf2 %>% distinct(cvr, .keep_all = TRUE)
+  forhandlere <- cbind(cvr = forhandler1[, 6],forhandler1[, 4:5])
+  rownames(forhandlere) <- NULL
+  
+  pristabel <- cbind(bildf2[, c(7, 1, 3, 41)])
+  
+  for (i in 1:nrow(forhandlere)) {
+    tryCatch({
+      dbWriteTable(con, "forhandlere", forhandlere[i,], append = TRUE)
+    }, error = function(msg) {
+      return(NA)
+    })
+  }
+  
+  for (i in 1:nrow(annoncer)) {
+    tryCatch({
+      dbWriteTable(con, "autocampers", annoncer[i,], append = TRUE)
+    }, error = function(msg) {
+      return(NA)
+    })
+  }
+  
+  dbWriteTable(con, "pristabel", pristabel, append = TRUE)
+}
+  
+write_autocamper_data(con, bildf2)
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#SQL TABLES REWAMP MED DE NYE SIMULEREDE SCRAPES
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+pristabelSQL <- dbGetQuery(con, "SELECT * FROM bilbasen.pristabel;")
+
+nye_records <-  simuleret_webscrape %>%
+  anti_join(pristabelSQL, by = "links")
+#genbrug af funktionen
+write_autocamper_data(con, nye_records)
+
+
+ændrede_records_pris <- simuleret_webscrape %>%
+  anti_join(pristabelSQL, by = c("prices", "links")) %>% 
+  anti_join(nye_records, by = "links")
+ændrede_records_pris <- cbind(ændrede_records_pris[, c(7, 1, 3, 41)])
+dbWriteTable(con, "pristabel", ændrede_records_pris, append = TRUE)
+
+
+missing_records_solgte <- pristabelSQL %>%
+  anti_join(simuleret_webscrape, by = "links")
+missing_records_solgte[,5] <- rep("TRUE", times=nrow(missing_records_solgte))
+ids <- missing_records_solgte[,1]
+dbExecute(con, glue_sql("DELETE FROM pristabel WHERE price_id IN ({ids*})", .con=con))
+dbWriteTable(con, "pristabel", missing_records_solgte, append = TRUE)
+
+
+
+dbDisconnect(con)
+
+
