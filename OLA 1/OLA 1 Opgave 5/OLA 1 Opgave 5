@@ -1,0 +1,64 @@
+###############
+#Opgave 5.1
+###############
+#Klassevektor oprettes
+#Først de fire bogstaver i sin egen vektor
+KlasseABCD=c("A", "B", "C", "D")
+
+#Herefter hentes de respektive bogstaver fra vektor "KlasseABCD" og gentages 9 gange
+KlasseA=rep(KlasseABCD[1], 9)
+KlasseB=rep(KlasseABCD[2], 9)
+KlasseC=rep(KlasseABCD[3], 9)
+KlasseD=rep(KlasseABCD[4], 9)
+
+#Den endelige Klassevektor samles og ender i en vektor på 36 values
+Klasse=c(KlasseA, KlasseB, KlasseC, KlasseD)
+
+#Månedsvektor oprettes: 1 til 9, 4 gange
+Mnd=rep(1:9, 4)
+
+#Scorevektor oprettes. Sekvensen løber fra 0 til 350 og springer med 10 ad gangen
+Score=sample(seq(from=1, to=36))
+
+#Vektorer samles i dataframen "Mndobs" (Månedlige observationer)
+Mndobs=data.frame(Klasse=Klasse, Måned=Mnd, Score=Score)
+
+###############
+#Opgave 5.2
+###############
+#3 sekvenser oprettes i 3 vektorer: Fra 1:34, fra 2:35 og fra 3:36.
+#De springer alle med 3 heltal ad gangen i hver deres sekvens
+Uge3.1 <- seq(1,34, 3)
+Uge3.2 <- seq(2,35, 3)
+Uge3.3 <- seq(3,36, 3)
+
+#Nye vektorer oprettes som tager data fra "Scorevektoren".
+#Rækkefølgen som datapunkterne dog samles op i, er efter vektorerne ovenfra.
+Uge4.1 <- Score[Uge3.1]
+Uge4.2 <- Score[Uge3.2]
+Uge4.3 <- Score[Uge3.3]
+
+#En ny vektor samler gennemsnittet at de tre scorere pr. kvartal.
+#Det gør den ved at lægge de tre vektorer sammen og derpå dividere med antallet (3)
+Scorekvartalgennemsnit <- c((Uge4.1+Uge4.2+Uge4.3)/3)
+
+#Nye vektorer oprettes over måneder og klasse.
+#Rækkefølgen som datapunkterne dog samles op i, er efter vektor "Uge3.3", som er sidste måned i kvartalet
+nymåned=Mndobs$Måned[Uge3.3]
+nyklasse=Mndobs$Klasse[Uge3.3]
+
+#Til sidst oprettes en ny data frame, hvor alle vektorer samles i korrekt rækkefølge.
+Kvartal_obs <- data.frame(Klasse=nyklasse, Måned=nymåned, Scorekvartalgennemsnit=Scorekvartalgennemsnit)
+
+
+###############
+#Opgave 5.3
+###############
+#Pakken "Tidyr" loades
+library(tidyr)
+
+#ny dataframe oprettes med afsæt i forrige opgaves dataframe. Vha. af "pivot_wider"-funktionen oprettes  en pivottabel,
+#hvor variablernes værdier opsættes på en måde hvor der ikke er "dupletter", og "Scorekvartalgennemsnittet" dermed visualiseres
+#med alle kombinationer.
+Kvartal_obs_pivot <- pivot_wider(names_from = "Klasse", values_from = "Scorekvartalgennemsnit", data = Kvartal_obs)
+
