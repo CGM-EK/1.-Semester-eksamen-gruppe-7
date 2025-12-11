@@ -1,0 +1,22 @@
+========================================================================= 
+Log Path: /home/ubuntu/log/log_1765440604.log 
+Program Path: /home/ubuntu/git/salling/OLA-5-gruppe-7/salling2.0 
+Working Directory: /home/ubuntu 
+User Name: ubuntu 
+R Version: 4.3.3 (2024-02-29) 
+Machine: ip-172-31-23-66 x86_64 
+Operating System: Linux 6.14.0-1017-aws #17~24.04.1-Ubuntu SMP Wed Nov 5 10:48:17 UTC 2025 
+Base Packages: stats graphics grDevices utils datasets methods base 
+Other Packages: logr_1.3.9 common_1.1.3 RMariaDB_1.3.4 ggplot2_4.0.1 lubridate_1.9.4 tidyr_1.3.1 dplyr_1.1.4 jsonlite_2.0.0 httr_1.4.7 
+Log Start Time: 2025-12-11 08:10:04.716675 
+========================================================================= 
+
+Starting 
+
+NOTE: Log Print Time:  2025-12-11 08:10:04.717945 
+NOTE: Elapsed Time: 0.000470399856567383 secs 
+
+========================================================================= 
+Log End Time: 2025-12-11 08:10:04.719419 
+Log Elapsed Time: 0 00:00:00 
+========================================================================= 
